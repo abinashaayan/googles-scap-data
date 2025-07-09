@@ -201,6 +201,25 @@ st.markdown(
     .stDataFrame thead, .stDataFrame tbody, .stDataFrame tr, .stDataFrame th, .stDataFrame td {
         width: 100% !important;
     }
+    .stDownloadButton {
+        margin-top: 1rem !important;
+    }
+    .stDownloadButton > button {
+        width: 100% !important;
+        background: linear-gradient(90deg, #34A853 0%, #4285F4 100%) !important;
+        color: white !important;
+        border-radius: 0.75rem !important;
+        font-size: 1rem !important;
+        padding: 0.75rem 1.5rem !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 8px 0 rgba(52,168,83,0.15) !important;
+    }
+    .stDownloadButton > button:hover {
+        background: linear-gradient(90deg, #4285F4 0%, #34A853 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px 0 rgba(52,168,83,0.25) !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -236,22 +255,35 @@ with st.container():
             else:
                 df = pd.DataFrame(data)
                 st.success(f"✅ Found {len(df)} results!")
-                st.dataframe(df, use_container_width=True)
-                # Download buttons
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="Download CSV",
-                    data=csv,
-                    file_name='google_maps_data.csv',
-                    mime='text/csv',
-                )
-                excel_buffer = io.BytesIO()
-                with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-                    df.to_excel(writer, index=False)
-                excel_buffer.seek(0)
-                st.download_button(
-                    label="Download Excel",
-                    data=excel_buffer,
-                    file_name='google_maps_data.xlsx',
-                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                ) 
+                
+                # Create a container to keep table and download buttons together
+                results_container = st.container()
+                
+                with results_container:
+                    # Display the dataframe
+                    st.dataframe(df, use_container_width=True)
+                    
+                    # Create download buttons in columns to keep them organized
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        csv = df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="📥 Download CSV",
+                            data=csv,
+                            file_name='google_maps_data.csv',
+                            mime='text/csv',
+                        )
+                    
+                    with col2:
+                        # Create Excel file using BytesIO with proper handling
+                        excel_buffer = io.BytesIO()
+                        with pd.ExcelWriter(excel_buffer, engine='openpyxl', mode='w') as writer:
+                            df.to_excel(writer, index=False, sheet_name='Google Maps Data')
+                        excel_buffer.seek(0)
+                        st.download_button(
+                            label="📊 Download Excel",
+                            data=excel_buffer.getvalue(),
+                            file_name='google_maps_data.xlsx',
+                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        ) 

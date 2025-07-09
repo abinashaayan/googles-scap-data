@@ -1,0 +1,11 @@
+[server]
+headless = true
+
+[theme]
+primaryColor = "#4285F4"
+backgroundColor = "#f5f7fa"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#262730"
+
+[runner]
+scriptPath = "maps_web.py" 
